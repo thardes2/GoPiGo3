@@ -49,7 +49,8 @@ fwd_speed=110						# Forward speed at which the GoPiGo should run.
 poll_time=0.01						# Time between polling the sensor, seconds.
 									
 slight_turn_speed=int(.7*fwd_speed)
-turn_speed=int(.7*fwd_speed)
+#turn_speed=int(.7*fwd_speed)
+turn_speed=int(.3*fwd_speed)
 
 last_val=[0]*5						# An array to keep track of the previous values.
 curr=[0]*5							# An array to keep track of the current values.
@@ -65,7 +66,8 @@ white_line=line_sensor.get_white_line()
 black_line=line_sensor.get_black_line()
 range_sensor= line_sensor.get_range()
 threshold=[a+b/2 for a,b in zip(white_line,range_sensor)]	# Make an iterator that aggregates elements from each of the iterables.
-
+print("White line: " + str(white_line))
+print("Black line: " + str(black_line))
 #Position to take action on
 mid 	=[0,0,1,0,0]	# Middle Position.
 mid1	=[0,1,1,1,0]	# Middle Position.
@@ -102,10 +104,8 @@ def turn_slight_left():
 	if msg_en:
 		print("Turn slight left")
 	if gpg_en:
+		gopigo.set_speed(slight_turn_speed)
 		gopigo.left()
-		time.sleep(0.5)
-		gopigo.forward()
-		
 def turn_left():
 	if msg_en:
 		print("Turn left")
@@ -117,9 +117,8 @@ def turn_slight_right():
 	if msg_en:
 		print("Turn slight right")
 	if gpg_en:
+		gopigo.set_speed(slight_turn_speed)
 		gopigo.right()
-		time.sleep(0.5)
-		gopigo.forward()
 
 def turn_right():
 	if msg_en:
@@ -138,6 +137,8 @@ def stop_now():
 	if msg_en:
 		print("Stop")
 	if gpg_en:
+		gopigo.forward()#to cross black lines at intersections
+		time.sleep(1)
 		gopigo.stop()
 		
 def go_back():
@@ -153,6 +154,7 @@ def run_gpg(curr):
 	#if the line is slightly left of right, keep moving straight
 	if curr==small_r or curr==small_l or curr==mid or curr==mid1:
 		go_straight()
+		return
 		
 	#If the line is towards the sligh left, turn slight right
 	elif curr==small_l1:
